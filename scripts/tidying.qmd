@@ -1,0 +1,133 @@
+---
+title: "Cleaning & Wrangling"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+
+#| message:false
+#| 
+library(dplyr)
+library(tidyr)
+library(readr)
+
+```
+
+# Data Sources
+
+## read in data
+
+```{r}
+catch_original <- read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+```
+
+## explore data
+
+```{r}
+# print colum names
+colnames(catch_original)
+head(catch_original)
+
+## Summary of each column of data
+summary(catch_original)
+
+## Prints unique values in a column (in this case, the region)
+unique(catch_original$Region)
+
+
+```
+## cleaning and reshaping
+
+##use the select()function
+```{r}
+catch_data <- catch_original %>%
+    select(Region, Year, Chinook, Sockeye, Coho, Pink, Chum)
+
+head(catch_data)
+
+catch_data <- catch_original %>%
+    select(-All,-notesRegCode)
+
+head(catch_data)
+```
+##check colum type
+
+glimpse(catch_data)
+
+##replace values using mutate
+##change chinook 
+```{r}
+catch_clean <- catch_data %>%
+    mutate(Chinook = as.numeric(Chinook))``{r}
+
+```
+```{r}
+i <- which(is.na(catch_clean$Chinook))
+i
+```
+```{r}
+catch_clean <- catch_data %>%
+    mutate(Chinook = as.numeric(Chinook))
+i <- which(is.na(catch_clean$Chinook))
+i
+
+catch_clean <- catch_data %>%
+    mutate(Chinook = if_else(condition = Chinook == "I", 
+                             true = "1", 
+                             false = Chinook),
+           Chinook = as.numeric(Chinook))
+
+##check
+catch_clean[i, ]
+
+
+
+```
+
+
+
+```
+## pivot the data shape using pivot_longer and pivot_wider
+
+```{r}
+catch_long <- catch_clean %>% 
+    #pivot longer all columns except Region and Year
+    pivot_longer(
+        cols = -c(Region, Year),
+        names_to = "species",
+        values_to = "catch")
+
+head(catch_long)
+
+```
+```{r}
+catch_long <- catch_clean %>% 
+    #pivot longer all columns except Region and Year
+    pivot_longer(
+        cols = -c(Region, Year),
+        names_to = "species",
+        values_to = "catch")
+
+head(catch_long)
+```
+## pivot wide
+```{r}
+
+catch_wide <- catch_long %>%
+    pivot_wider(names_from = species,
+                values_from = catch)
+
+head(catch_wide)
+```
+
+## renaming columns using rename()
+```{r}
+
+catch_long <- catch_long %>%
+    rename(catch_thousands = catch)
+
+head(catch_long)
+```
