@@ -131,3 +131,19 @@ catch_long <- catch_long %>%
 
 head(catch_long)
 ```
+
+```{r}
+catch_long <- catch_long %>%
+    mutate(catch = catch_thousands * 1000)
+
+head(catch_long)
+```
+
+```{r}
+catch_long <- catch_long %>%
+    mutate(catch = catch_thousands * 1000) %>%
+    select(-catch_thousands)
+
+head(catch_long)
+```
+
